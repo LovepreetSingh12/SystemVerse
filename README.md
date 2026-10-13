@@ -62,6 +62,34 @@ Catalog source: `backend/src/main/resources/catalog.json`; the frontend ships a 
 
 ## Verification
 
+### Continuous integration
+
+[SystemVerse CI](.github/workflows/ci.yml) runs on every push to any branch,
+on pull requests, and manually from the GitHub Actions tab. Each push checks
+the pushed revision; commits that remain only on your machine do not trigger CI.
+
+Two independent jobs must pass:
+
+- **Frontend build:** Node.js 22, `npm ci`, and the production React/Vite build.
+- **Backend build and tests:** Temurin Java 21 and `mvn --batch-mode --no-transfer-progress clean verify`, including compilation, enabled tests, and executable JAR packaging.
+
+Dependency caches speed up subsequent runs. No repository secrets or running
+database are needed for these build checks. PostgreSQL uses an upstream image
+and has no application source to compile. These checks do not exercise database
+startup or deploy the application.
+
+`LearningControllerTest.java` exercises the controller and real service with a
+mocked database. Its six tests run automatically in the backend CI job.
+
+After committing and pushing the workflow, inspect results in the repository's
+**Actions** tab. To prevent merging broken builds, configure the branch rules
+to require **Frontend build** and **Backend build and tests**.
+
+Action setup references: [setup-node](https://github.com/actions/setup-node)
+and [setup-java](https://github.com/actions/setup-java).
+
+### Local checks
+
 ```bash
 npm run build --prefix frontend
 mvn -f backend/pom.xml test
