@@ -26,6 +26,8 @@ import {
   Zap,
   Trophy,
   ExternalLink,
+  Sun,
+  Moon,
 } from "lucide-react";
 import initialCatalog from "./catalog.json";
 import "./styles.css";
@@ -47,6 +49,26 @@ function read(key, fallback) {
   }
 }
 function App() {
+  const [theme, setTheme] = useState(() => {
+    const saved = read("sv-theme", null);
+    return saved === "light" || saved === "dark"
+      ? saved
+      : window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+  });
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute(
+      "content",
+      theme === "dark" ? "#11161f" : "#f7f8fb",
+    );
+    try {
+      localStorage.setItem("sv-theme", JSON.stringify(theme));
+    } catch {
+      // The toggle still works when browser storage is unavailable.
+    }
+  }, [theme]);
   const [page, setPage] = useState("Overview"),
     [catalog, setCatalog] = useState(initialCatalog),
     [state, setState] = useState(() => read("sv-state", {})),
@@ -292,8 +314,18 @@ function App() {
             <strong>{page}</strong>
           </div>
           <div className="header-right">
-            <span className="live-dot" /> A little better, every day{" "}
+            <span className="header-motto">
+              <span className="live-dot" /> A little better, every day
+            </span>
             <span className="avatar">Y</span>
+            <button
+              className="theme-toggle"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+              title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            >
+              {theme === "dark" ? <Sun size={19} /> : <Moon size={19} />}
+            </button>
           </div>
         </header>
         <main>

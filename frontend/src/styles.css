@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Manrope:wght@400;500;600;650;700;750;800&display=swap");
 :root {
+  color-scheme: light;
   font-family: "DM Sans", sans-serif;
   color: #253047;
   background: #f7f8fb;
@@ -249,6 +250,7 @@ nav button:hover {
   margin-left: 246px;
 }
 header {
+  gap: 12px;
   height: 77px;
   border-bottom: 1px solid #e9ebf1;
   background: #fff;
@@ -258,6 +260,7 @@ header {
   padding: 0 42px;
 }
 .breadcrumb {
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -265,6 +268,9 @@ header {
   color: #9da2af;
 }
 .breadcrumb strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-weight: 500;
   color: #545c6c;
 }
@@ -274,6 +280,26 @@ header {
   gap: 9px;
   font-size: 10px;
   color: #8e93a0;
+}
+.header-motto {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  margin-left: 8px;
+  border: 1px solid #e9e3f0;
+  border-radius: 10px;
+  color: #7959cb;
+  background: #f7f4fc;
+}
+.theme-toggle:hover {
+  background: #efebfb;
 }
 .live-dot,
 .workspace-badge span {
@@ -1534,7 +1560,8 @@ footer > span {
   .mobile-toggle {
     display: flex;
   }
-  .header-right {
+  .header-right .header-motto,
+  .header-right .avatar {
     display: none;
   }
   header {
@@ -1689,3 +1716,101 @@ footer > span {
     scroll-behavior: auto !important;
   }
 }
+
+/* Dark surfaces retain the purple and blue accents of the light theme. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  color: #e2e6f0;
+  background: #11161f;
+  --dark-surface: #1a202c;
+  --dark-raised: #252c3b;
+  --dark-border: #343c4e;
+}
+[data-theme="dark"] :is(
+  .sidebar, header, .stats, .lesson-card, .roadmap, .challenge,
+  .modal, .search, .path-arrow, .secondary, .practice-banner button
+) {
+  background: var(--dark-surface);
+  border-color: var(--dark-border);
+}
+[data-theme="dark"] :is(
+  .profile, .stat, .card-bottom, .roadmap-step, .challenge > button,
+  footer, .modal-top, .notes-section textarea
+) {
+  border-color: var(--dark-border);
+}
+[data-theme="dark"] :is(
+  .growth, .practice-banner, .reflection, .run-instructions, .modal-actions,
+  .workspace-badge, .difficulty, .java-badge
+) {
+  background: #222436;
+  border-color: var(--dark-border);
+}
+[data-theme="dark"] .path-card {
+  background: linear-gradient(115deg, #1d2b40, #1a202c);
+  border-color: #34435a;
+}
+[data-theme="dark"] .path-card.lld {
+  background: linear-gradient(115deg, #2b233c, #1a202c);
+  border-color: #443755;
+}
+[data-theme="dark"] :is(.lesson-art, .stat-icon, .path-icon) {
+  background: #24324a;
+}
+[data-theme="dark"] :is(
+  .lesson-art.lld, .stat-icon.purple, .lld .path-icon, .path-icon.lld,
+  .roadmap-step > span, .terminal-icon, .avatar, .profile > span:first-child
+) {
+  background: #342b47;
+  border-color: #443755;
+  color: #c3a5f0;
+}
+[data-theme="dark"] .stat-icon.orange { background: #3c3027; }
+[data-theme="dark"] :is(.stat-icon.green, .roadmap-step > span.done) {
+  background: #23392e;
+  color: #94c7a7;
+}
+[data-theme="dark"] :is(.diagram > span, .play-circle) {
+  background: var(--dark-raised);
+  border-color: #45516a;
+}
+[data-theme="dark"] .filter-tabs { background: #141a25; }
+[data-theme="dark"] .filter-tabs .selected {
+  background: var(--dark-raised);
+  color: #c3a5f0;
+}
+[data-theme="dark"] nav button.active {
+  background: #342b47;
+  color: #d0b8f4;
+}
+[data-theme="dark"] nav button:hover { background: #2c293d; }
+[data-theme="dark"] :is(.breadcrumb strong, .search input, .empty h3) {
+  color: #e2e6f0;
+}
+[data-theme="dark"] .notes-section textarea {
+  background: #141a25;
+  color: #e2e6f0;
+}
+[data-theme="dark"] :is(
+  nav button, .page-top p, .section-heading p, .lesson-body p, .path-card p,
+  .path-card h3 span, .path-bottom, .card-bottom, .stat div > span,
+  .challenge p, .roadmap p, .roadmap-step small, .growth p, .help,
+  .profile small, .header-right, .breadcrumb, .overline, .nav-label,
+  .difficulty, .practice-banner p, .modal-content p, .lesson-detail li,
+  .requirements li, .reflection p, .run-instructions p, .empty p,
+  .video-attribution, footer
+) {
+  color: #aab3c7;
+}
+[data-theme="dark"] :is(
+  .text-button, .growth button, .secondary, .practice-banner button,
+  .challenge > button, .pattern, .reflection strong, .run-instructions code,
+  .video-attribution a, .marked, .theme-toggle
+) {
+  color: #c3a5f0;
+}
+[data-theme="dark"] .theme-toggle {
+  background: #342b47;
+  border-color: #50415f;
+}
+[data-theme="dark"] .theme-toggle:hover { background: #443755; }
