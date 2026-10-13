@@ -1,0 +1,10 @@
+CREATE TABLE learning_state (
+ learner_id UUID NOT NULL,
+ item_id VARCHAR(80) NOT NULL,
+ completed BOOLEAN NOT NULL DEFAULT FALSE,
+ bookmarked BOOLEAN NOT NULL DEFAULT FALSE,
+ notes TEXT NOT NULL DEFAULT '',
+ source_code TEXT NOT NULL DEFAULT '',
+ updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (learner_id, item_id)
+);

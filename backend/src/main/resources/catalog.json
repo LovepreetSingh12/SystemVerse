@@ -1,0 +1,330 @@
+{
+  "lessons": [
+    {
+      "id": "hld-1",
+      "title": "System design fundamentals",
+      "track": "HLD",
+      "category": "Foundations",
+      "level": "Beginner",
+      "minutes": 25,
+      "video": "m8Icp_Cid5o",
+      "creator": "freeCodeCamp",
+      "description": "Start with the questions that turn an ambiguous idea into a dependable system.",
+      "notes": [
+        "Separate functional requirements (what the system does) from quality attributes (latency, durability and availability).",
+        "Estimate peak requests per second, payload sizes and storage growth. State your assumptions before calculating.",
+        "Sketch a client, API service and database. Add components only when a requirement justifies the complexity."
+      ],
+      "exercise": "Design a service for sharing short text posts. List three functional requirements and three measurable quality targets.",
+      "videoNote": "Companion course \u2014 covers several topics in this learning path."
+    },
+    {
+      "id": "hld-2",
+      "title": "Load balancing & horizontal scaling",
+      "track": "HLD",
+      "category": "Infrastructure",
+      "level": "Beginner",
+      "minutes": 20,
+      "video": "LQuuoHTyYz8",
+      "creator": "ByteByteGo",
+      "description": "Distribute traffic, remove single points of failure, and make growth predictable.",
+      "notes": [
+        "A load balancer routes traffic to healthy instances. Health checks should indicate whether an instance can actually serve requests.",
+        "Round-robin is simple; least-connections can handle uneven request duration. Sticky sessions complicate failover.",
+        "Keep application servers stateless so any healthy instance can serve the next request. Move shared state to durable storage."
+      ],
+      "exercise": "Sketch a load balancer with three application servers. Explain what happens when one server fails.",
+      "videoNote": "Focused companion tutorial."
+    },
+    {
+      "id": "hld-3",
+      "title": "Databases, indexes & storage",
+      "track": "HLD",
+      "category": "Data systems",
+      "level": "Intermediate",
+      "minutes": 30,
+      "video": "m8Icp_Cid5o",
+      "creator": "freeCodeCamp",
+      "description": "Choose a data model from access patterns, then reason about its tradeoffs.",
+      "notes": [
+        "Start with the read and write queries, then choose tables and indexes to support them.",
+        "Indexes improve selected reads but increase write cost and storage. A composite index depends on column order.",
+        "Replication improves availability and read capacity; sharding distributes data but makes joins and rebalancing harder."
+      ],
+      "exercise": "Model users, videos and comments. Pick indexes for retrieving recent comments for a video.",
+      "videoNote": "Companion course \u2014 covers several topics in this learning path."
+    },
+    {
+      "id": "hld-4",
+      "title": "Caching & content delivery",
+      "track": "HLD",
+      "category": "Infrastructure",
+      "level": "Intermediate",
+      "minutes": 25,
+      "video": "m8Icp_Cid5o",
+      "creator": "freeCodeCamp",
+      "description": "Bring frequently requested data closer to the people who need it.",
+      "notes": [
+        "Cache-aside reads check the cache before storage and populate the cache after a miss.",
+        "Set expiry based on acceptable staleness. Invalidate or version entries after updates.",
+        "Prevent a cache stampede with request coalescing and jittered expiry. CDNs cache assets near users."
+      ],
+      "exercise": "Choose cache keys and expiry rules for video metadata. Explain how updates become visible.",
+      "videoNote": "Companion course \u2014 covers several topics in this learning path."
+    },
+    {
+      "id": "hld-5",
+      "title": "Design a video streaming platform",
+      "track": "HLD",
+      "category": "Case studies",
+      "level": "Advanced",
+      "minutes": 60,
+      "video": "m8Icp_Cid5o",
+      "creator": "freeCodeCamp",
+      "description": "Connect uploads, asynchronous processing, storage, and global delivery.",
+      "notes": [
+        "Upload video directly to object storage using scoped upload URLs. Track metadata separately.",
+        "Use a durable queue to trigger transcoding into multiple resolutions. Make processing idempotent.",
+        "Deliver segments through a CDN. Track processing state so viewers only see playable content."
+      ],
+      "exercise": "Draw the upload and playback paths. Discuss retries, failed transcoding jobs and regional failures.",
+      "videoNote": "Companion course \u2014 covers several topics in this learning path."
+    },
+    {
+      "id": "hld-6",
+      "title": "Reliability & distributed tradeoffs",
+      "track": "HLD",
+      "category": "Architecture",
+      "level": "Advanced",
+      "minutes": 35,
+      "video": "m8Icp_Cid5o",
+      "creator": "freeCodeCamp",
+      "description": "Design for partial failure and explain where consistency matters.",
+      "notes": [
+        "A timeout does not prove a remote operation failed. Retried writes need an idempotency key.",
+        "Use bounded retries with exponential backoff and jitter. Circuit breakers help prevent cascading overload.",
+        "Define recovery objectives and test restoration. Replicas alone do not replace backups."
+      ],
+      "exercise": "A payment request times out after reaching the provider. Explain how to retry without charging twice.",
+      "videoNote": "Companion course \u2014 covers several topics in this learning path."
+    },
+    {
+      "id": "lld-1",
+      "title": "Object-oriented thinking in Java",
+      "track": "LLD",
+      "category": "Foundations",
+      "level": "Beginner",
+      "minutes": 25,
+      "video": "VNyyC2IOvFo",
+      "creator": "Java Design Patterns tutorial",
+      "description": "Model responsibilities and behavior with small, focused objects.",
+      "notes": [
+        "Encapsulation keeps invariants inside the object that owns the data. Prefer behavior methods over public mutable fields.",
+        "Use interfaces for substitutable behavior. Prefer composition when inheritance does not represent a stable is-a relationship.",
+        "Separate domain logic from input/output so it can be tested without a database or web server."
+      ],
+      "exercise": "Model a library loan. Decide which object prevents a book from being loaned twice.",
+      "videoNote": "Companion course \u2014 covers several topics in this learning path."
+    },
+    {
+      "id": "lld-2",
+      "title": "SOLID principles, made practical",
+      "track": "LLD",
+      "category": "Design principles",
+      "level": "Beginner",
+      "minutes": 30,
+      "video": "HoA6aZPR5K0",
+      "creator": "Geekific",
+      "description": "Build Java code that is easier to extend, test, and reason about.",
+      "notes": [
+        "Single responsibility means a coherent reason to change, not necessarily one method per class.",
+        "Depend on narrow interfaces at boundaries. Inject implementations rather than constructing dependencies deep in business logic.",
+        "Subtypes must preserve expected behavior. Adding an unsupported operation exception often signals a poor abstraction."
+      ],
+      "exercise": "Refactor a notification service so adding SMS does not require editing the core delivery workflow.",
+      "videoNote": "Focused companion tutorial."
+    },
+    {
+      "id": "lld-3",
+      "title": "Strategy & factory patterns",
+      "track": "LLD",
+      "category": "Design patterns",
+      "level": "Intermediate",
+      "minutes": 35,
+      "video": "VNyyC2IOvFo",
+      "creator": "Java Design Patterns tutorial",
+      "description": "Make interchangeable behavior explicit and keep object creation understandable.",
+      "notes": [
+        "A strategy encapsulates a family of algorithms behind a common interface.",
+        "A factory centralizes selection and construction; avoid factories when a constructor is already sufficient.",
+        "Inject a strategy into its consumer and test the consumer with a predictable fake implementation."
+      ],
+      "exercise": "Implement a checkout service supporting flat-rate and percentage discounts.",
+      "videoNote": "Companion course \u2014 covers several topics in this learning path."
+    },
+    {
+      "id": "lld-4",
+      "title": "Observer & event-driven objects",
+      "track": "LLD",
+      "category": "Design patterns",
+      "level": "Intermediate",
+      "minutes": 30,
+      "video": "VNyyC2IOvFo",
+      "creator": "Java Design Patterns tutorial",
+      "description": "Decouple event producers from the objects that respond to them.",
+      "notes": [
+        "Observers subscribe to an event source and receive notifications when state changes.",
+        "Specify whether callbacks are synchronous and what happens if a subscriber throws an exception.",
+        "Unsubscribe unused listeners to avoid retaining objects indefinitely. Avoid modifying the listener list while iterating."
+      ],
+      "exercise": "Design a stock-price feed with email and console subscribers.",
+      "videoNote": "Companion course \u2014 covers several topics in this learning path."
+    },
+    {
+      "id": "lld-5",
+      "title": "State pattern & domain workflows",
+      "track": "LLD",
+      "category": "Design patterns",
+      "level": "Intermediate",
+      "minutes": 35,
+      "video": "VNyyC2IOvFo",
+      "creator": "Java Design Patterns tutorial",
+      "description": "Represent valid transitions and make invalid actions impossible to overlook.",
+      "notes": [
+        "Represent each lifecycle state explicitly, using an enum for simple cases or state objects for complex behavior.",
+        "Keep transition validation close to the aggregate that owns the state.",
+        "Write a transition table and test every allowed and forbidden action, including repeated requests."
+      ],
+      "exercise": "Model a vending machine with idle, funded and dispensing states.",
+      "videoNote": "Companion course \u2014 covers several topics in this learning path."
+    },
+    {
+      "id": "lld-6",
+      "title": "Design review & extensibility",
+      "track": "LLD",
+      "category": "Case studies",
+      "level": "Advanced",
+      "minutes": 40,
+      "video": "HoA6aZPR5K0",
+      "creator": "Geekific",
+      "description": "Evaluate a design through requirements, invariants, and concrete change scenarios.",
+      "notes": [
+        "Start a review by checking the required use cases rather than counting design patterns.",
+        "State invariants and ownership boundaries. Look for mutable data shared across unrelated objects.",
+        "Try one plausible new requirement and identify which classes change. Prefer clear code over speculative abstractions."
+      ],
+      "exercise": "Review a parking-lot design for multiple vehicle types, pricing policies and concurrent entry.",
+      "videoNote": "Focused companion tutorial."
+    }
+  ],
+  "challenges": [
+    {
+      "id": "practice-1",
+      "title": "Parking lot",
+      "level": "Beginner",
+      "pattern": "OOP \u00b7 Strategy",
+      "description": "Design a parking lot that assigns suitable spaces and calculates parking fees.",
+      "requirements": [
+        "Support cars and motorcycles with appropriate spot types.",
+        "Issue a ticket on entry and release the spot on exit.",
+        "Reject entry when no compatible spot is free.",
+        "Calculate fees through a replaceable pricing policy."
+      ],
+      "hints": [
+        "Separate ParkingSpot, Ticket, Vehicle and PricingPolicy.",
+        "Test a full lot, repeated exits, and incompatible vehicle types."
+      ],
+      "starter": "// Parking lot \u2014 SystemVerse Java workspace\n// Implement the requirements, then add checks in main.\n\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Let's design parking lot.\");\n        // TODO: exercise your implementation here\n    }\n}\n"
+    },
+    {
+      "id": "practice-2",
+      "title": "Notification service",
+      "level": "Beginner",
+      "pattern": "Strategy \u00b7 Factory",
+      "description": "Build an extensible notification system with interchangeable delivery channels.",
+      "requirements": [
+        "Support email and SMS through a common interface.",
+        "Validate recipients before delivery.",
+        "Allow a new channel without modifying the core service.",
+        "Use a fake sender to test delivery without network access."
+      ],
+      "hints": [
+        "Inject a NotificationChannel into your service.",
+        "Keep formatting separate from delivery."
+      ],
+      "starter": "// Notification service \u2014 SystemVerse Java workspace\n// Implement the requirements, then add checks in main.\n\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Let's design notification service.\");\n        // TODO: exercise your implementation here\n    }\n}\n"
+    },
+    {
+      "id": "practice-3",
+      "title": "Vending machine",
+      "level": "Intermediate",
+      "pattern": "State pattern",
+      "description": "Model a vending machine with clear states and reliable inventory handling.",
+      "requirements": [
+        "Select an available product and accept payment.",
+        "Reject insufficient payment and return change.",
+        "Support cancellation before dispensing.",
+        "Prevent dispensing an out-of-stock product."
+      ],
+      "hints": [
+        "Create a state-transition table first.",
+        "Keep inventory changes atomic within a purchase."
+      ],
+      "starter": "// Vending machine \u2014 SystemVerse Java workspace\n// Implement the requirements, then add checks in main.\n\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Let's design vending machine.\");\n        // TODO: exercise your implementation here\n    }\n}\n"
+    },
+    {
+      "id": "practice-4",
+      "title": "LRU cache",
+      "level": "Intermediate",
+      "pattern": "Collections \u00b7 Generics",
+      "description": "Implement a bounded least-recently-used cache in Java.",
+      "requirements": [
+        "Implement get and put with average O(1) complexity.",
+        "Evict the least recently used key at capacity.",
+        "Updating a key should refresh its recency.",
+        "Reject nonpositive capacity and test capacity one."
+      ],
+      "hints": [
+        "Combine a HashMap with a doubly linked list or use LinkedHashMap.",
+        "Test misses, updates and repeated access before eviction."
+      ],
+      "starter": "// LRU cache \u2014 SystemVerse Java workspace\n// Implement the requirements, then add checks in main.\n\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Let's design lru cache.\");\n        // TODO: exercise your implementation here\n    }\n}\n"
+    },
+    {
+      "id": "practice-5",
+      "title": "Elevator system",
+      "level": "Advanced",
+      "pattern": "State \u00b7 Scheduling",
+      "description": "Model multiple elevators and dispatch requests with a replaceable scheduling policy.",
+      "requirements": [
+        "Support internal floor selection and external direction requests.",
+        "Track current floor, direction and door state.",
+        "Make dispatch policy replaceable.",
+        "Reject requests outside the building floor range."
+      ],
+      "hints": [
+        "Separate dispatch decisions from elevator movement.",
+        "Test idle elevators and requests in opposite directions."
+      ],
+      "starter": "// Elevator system \u2014 SystemVerse Java workspace\n// Implement the requirements, then add checks in main.\n\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Let's design elevator system.\");\n        // TODO: exercise your implementation here\n    }\n}\n"
+    },
+    {
+      "id": "practice-6",
+      "title": "Split expenses",
+      "level": "Intermediate",
+      "pattern": "Domain modeling",
+      "description": "Design a shared-expense ledger with transparent balances.",
+      "requirements": [
+        "Support equal and exact amount splits.",
+        "Validate that split amounts sum to the expense.",
+        "Track net balances per participant.",
+        "Settle debts without losing the expense history."
+      ],
+      "hints": [
+        "Represent currency with BigDecimal rather than double.",
+        "Test rounding, self-payments and invalid totals."
+      ],
+      "starter": "// Split expenses \u2014 SystemVerse Java workspace\n// Implement the requirements, then add checks in main.\n\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Let's design split expenses.\");\n        // TODO: exercise your implementation here\n    }\n}\n"
+    }
+  ]
+}
