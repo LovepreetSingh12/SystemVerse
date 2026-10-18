@@ -3,12 +3,19 @@ package com.systemverse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.systemverse.controllers.LearningController;
 import com.systemverse.services.LearningService;
-import org.junit.jupiter.api.BeforeEach;
+import com.systemverse.security.SecurityConfig;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.BadJwtException;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +23,6 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -25,20 +31,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@WebMvcTest(LearningController.class)
+@Import({SecurityConfig.class, LearningService.class})
 class LearningControllerTest {
-    private static final UUID LEARNER = UUID.fromString("ef350610-5031-4f2c-bd35-d726d92c0bb4");
-
-    private final ObjectMapper mapper = new ObjectMapper();
-    private MockMvc api;
-    private JdbcTemplate db;
-
-    @BeforeEach
-    void setup() throws Exception {
-        db = mock(JdbcTemplate.class);
-        // Exercise the real service and catalog while keeping these tests database-free.
-        LearningService service = new LearningService(db, mapper);
-        api = MockMvcBuilders.standaloneSetup(new LearningController(service)).build();
-    }
+    private static final Jwt USER = Jwt.withTokenValue("test").header("alg", "RS256")
+            .issuer("https://securetoken.google.com/test-project").subject("alice").build();
+    private static final UUID LEARNER = LearningController.workspaceId(USER);
+    @Autowired private ObjectMapper mapper;
+    @Autowired private MockMvc api;
+    @MockitoBean private JdbcTemplate db;
+    @MockitoBean private JwtDecoder decoder;
 
     @Test
     void catalogContainsBothLearningPathsAndPractice() throws Exception {
@@ -54,7 +56,7 @@ class LearningControllerTest {
     @Test
     void rejectsUnknownItems() throws Exception {
         api.perform(put("/api/state/not-real")
-                        .header("X-Learner-Id", LEARNER.toString())
+                        .with(jwt().jwt(USER))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"completed\":true}"))
                 .andExpect(status().isNotFound());
@@ -62,18 +64,36 @@ class LearningControllerTest {
     }
 
     @Test
-    void requiresValidWorkspaceId() throws Exception {
-        api.perform(get("/api/state").header("X-Learner-Id", "invalid"))
-                .andExpect(status().isBadRequest());
-        api.perform(get("/api/state"))
-                .andExpect(status().isBadRequest());
+    void requiresAuthentication() throws Exception {
+        api.perform(get("/api/state").header("X-Learner-Id", LEARNER.toString()))
+                .andExpect(status().isUnauthorized());
+        api.perform(put("/api/state/hld-1").contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isUnauthorized());
         verifyNoInteractions(db);
+    }
+
+    @Test
+    void rejectsInvalidBearerToken() throws Exception {
+        when(decoder.decode("invalid")).thenThrow(new BadJwtException("Invalid signature"));
+        api.perform(get("/api/state").header("Authorization", "Bearer invalid"))
+                .andExpect(status().isUnauthorized());
+        verifyNoInteractions(db);
+    }
+
+    @Test
+    void ignoresSpoofedWorkspaceHeader() throws Exception {
+        Jwt bob = Jwt.withTokenValue("bob-token").header("alg", "RS256")
+                .issuer("https://securetoken.google.com/test-project").subject("bob").build();
+        api.perform(get("/api/state").with(jwt().jwt(bob))
+                .header("X-Learner-Id", LEARNER.toString()))
+                .andExpect(status().isOk());
+        verify(db).queryForList(anyString(), eq(LearningController.workspaceId(bob)));
     }
 
     @Test
     void limitsSourceSize() throws Exception {
         api.perform(put("/api/state/practice-1")
-                        .header("X-Learner-Id", LEARNER.toString())
+                        .with(jwt().jwt(USER))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(Map.of("code", "a".repeat(100001)))))
                 .andExpect(status().isBadRequest());
@@ -85,7 +105,7 @@ class LearningControllerTest {
         when(db.queryForList(anyString(), eq(LEARNER)))
                 .thenReturn(List.of(Map.of("id", "hld-1", "completed", true)));
 
-        api.perform(get("/api/state").header("X-Learner-Id", LEARNER.toString()))
+        api.perform(get("/api/state").with(jwt().jwt(USER)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value("hld-1"))
                 .andExpect(jsonPath("$[0].completed").value(true));
@@ -95,7 +115,7 @@ class LearningControllerTest {
     @Test
     void savesLearningState() throws Exception {
         api.perform(put("/api/state/hld-1")
-                        .header("X-Learner-Id", LEARNER.toString())
+                        .with(jwt().jwt(USER))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"completed":true,"bookmarked":true,"notes":"Tradeoffs","code":""}
