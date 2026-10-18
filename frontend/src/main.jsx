@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import initialCatalog from "./catalog.json";
 import "./styles.css";
+import { AuthGate, auth, authHeaders, logout } from "./auth";
 const nav = [
   ["Overview", LayoutDashboard],
   ["Learning paths", Route],
@@ -48,7 +49,9 @@ function read(key, fallback) {
     return fallback;
   }
 }
-function App() {
+function App({ user }) {
+  const stateKey = `sv-state:${auth.app.options.projectId}:${user.uid}`;
+  const pendingKey = `sv-pending:${auth.app.options.projectId}:${user.uid}`;
   const [theme, setTheme] = useState(() => {
     const saved = read("sv-theme", null);
     return saved === "light" || saved === "dark"
@@ -71,30 +74,22 @@ function App() {
   }, [theme]);
   const [page, setPage] = useState("Overview"),
     [catalog, setCatalog] = useState(initialCatalog),
-    [state, setState] = useState(() => read("sv-state", {})),
+    [state, setState] = useState(() => read(stateKey, {})),
     [status, setStatus] = useState("Connecting"),
     [query, setQuery] = useState(""),
     [filter, setFilter] = useState("All"),
     [selected, setSelected] = useState(null),
     [toast, setToast] = useState(""),
     [mobile, setMobile] = useState(false);
-  const [learner] = useState(() => {
-    let id = localStorage.getItem("sv-learner");
-    if (!id) {
-      id = crypto.randomUUID();
-      localStorage.setItem("sv-learner", id);
-    }
-    return id;
-  });
   const [ready, setReady] = useState(false);
-  const pending = React.useRef(read("sv-pending", {}));
+  const pending = React.useRef(read(pendingKey, {}));
   const current = React.useRef(state);
   current.current = state;
   const writeQueue = React.useRef(Promise.resolve());
   const putState = async (id, value) => {
     const result = await fetch("/api/state/" + id, {
       method: "PUT",
-      headers: { "Content-Type": "application/json", "X-Learner-Id": learner },
+      headers: { "Content-Type": "application/json", ...await authHeaders(user) },
       body: JSON.stringify(value),
       signal: AbortSignal.timeout(5000),
     });
@@ -111,7 +106,7 @@ function App() {
         const [a, b] = await Promise.all([
           fetch("/api/catalog", { signal: AbortSignal.timeout(4000) }),
           fetch("/api/state", {
-            headers: { "X-Learner-Id": learner },
+            headers: { ...await authHeaders(user) },
             signal: AbortSignal.timeout(4000),
           }),
         ]);
@@ -126,11 +121,12 @@ function App() {
           setState(merged);
           current.current = merged;
           for (const [id, value] of Object.entries(pending.current)) {
+            if (!active) return;
             await putState(id, value);
             delete pending.current[id];
-            localStorage.setItem("sv-pending", JSON.stringify(pending.current));
+            localStorage.setItem(pendingKey, JSON.stringify(pending.current));
           }
-          setStatus("PostgreSQL connected");
+          if (active) setStatus("PostgreSQL connected");
         }
       } catch {
         if (active) setStatus("Local preview · saved in this browser");
@@ -142,23 +138,23 @@ function App() {
     return () => {
       active = false;
     };
-  }, [learner]);
+  }, [user]);
   useEffect(() => {
-    localStorage.setItem("sv-state", JSON.stringify(state));
-  }, [state]);
+    localStorage.setItem(stateKey, JSON.stringify(state));
+  }, [state, stateKey]);
   const save = async (id, patch) => {
     const next = { ...empty, ...current.current[id], ...patch };
     current.current = { ...current.current, [id]: next };
     setState(current.current);
     pending.current[id] = next;
-    localStorage.setItem("sv-pending", JSON.stringify(pending.current));
+    localStorage.setItem(pendingKey, JSON.stringify(pending.current));
     if (status === "PostgreSQL connected") {
       writeQueue.current = writeQueue.current.then(async () => {
         try {
           await putState(id, next);
           if (pending.current[id] === next) {
             delete pending.current[id];
-            localStorage.setItem("sv-pending", JSON.stringify(pending.current));
+            localStorage.setItem(pendingKey, JSON.stringify(pending.current));
           }
         } catch {
           setStatus("Local preview · saved in this browser");
@@ -292,8 +288,8 @@ function App() {
           <div className="profile">
             <span>Y</span>
             <div>
-              <strong>Your workspace</strong>
-              <small>No sign-in needed</small>
+              <strong>{user.displayName || user.email || user.phoneNumber || "Your workspace"}</strong>
+              <button onClick={() => logout().catch(() => notify("Unable to sign out. Please try again."))}>Sign out</button>
             </div>
             <span className="online-dot" />
           </div>
@@ -891,13 +887,12 @@ function Detail({ item, state, save, close, notify, ready }) {
               Follow the HLD and LLD roadmaps, watch companion tutorials, and
               write your own solutions to Java design challenges.
             </p>
-            <h3>Progress without an account</h3>
+            <h3>Progress with your account</h3>
             <p>
-              Your browser gets a random workspace ID. When the backend is
-              connected, progress, notes, bookmarks, and saved code are stored
-              in PostgreSQL. In local preview they stay in this browser and sync
-              when you reload with the backend available. Clearing browser
-              storage creates a new workspace.
+              Your progress, notes, bookmarks, and saved code belong to your signed-in
+              account. Changes are cached separately for each account in this browser.
+              If the server is unavailable, reload when connected to sync pending changes.
+              Sign out when using a shared device.
             </p>
             <h3>Java practice</h3>
             <p>
@@ -1064,4 +1059,4 @@ function Detail({ item, state, save, close, notify, ready }) {
     </div>
   );
 }
-createRoot(document.getElementById("root")).render(<App />);
+createRoot(document.getElementById("root")).render(<AuthGate>{user => <App key={user.uid} user={user} />}</AuthGate>);

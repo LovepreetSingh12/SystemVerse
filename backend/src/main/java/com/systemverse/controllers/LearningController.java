@@ -4,6 +4,9 @@ import com.systemverse.records.State;
 import com.systemverse.services.LearningService;
 
 import jakarta.validation.Valid;
+import java.nio.charset.StandardCharsets;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
@@ -28,12 +31,16 @@ public class LearningController {
     }
 
     @GetMapping("/state") 
-    public List<Map<String,Object>> state(@RequestHeader("X-Learner-Id") UUID learner){
-        return learningService.state(learner);
+    public List<Map<String,Object>> state(@AuthenticationPrincipal Jwt user){
+        return learningService.state(workspaceId(user));
     }
     
     @PutMapping("/state/{id}") 
-    public State save(@RequestHeader("X-Learner-Id") UUID learner,@PathVariable String id,@Valid @RequestBody State state){
-        return learningService.save(learner,id,state);
+    public State save(@AuthenticationPrincipal Jwt user,@PathVariable String id,@Valid @RequestBody State state){
+        return learningService.save(workspaceId(user),id,state);
+    }
+
+    public static UUID workspaceId(Jwt user) {
+        return UUID.nameUUIDFromBytes((user.getIssuer() + ":" + user.getSubject()).getBytes(StandardCharsets.UTF_8));
     }
 }
